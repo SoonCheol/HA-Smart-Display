@@ -1,0 +1,39 @@
+# HA Smart Display v5 — 기존 Smart Display 원시 구성 전체 교체용
+# 주방 환풍기는 HA 이름이 단순 "환풍기"인 엔티티를 임시 연결; 실제 위치 확인 필요
+kiosk_mode:
+  kiosk: true
+views:
+- title: 홈
+  path: home
+  icon: mdi:home
+  type: panel
+  cards:
+  - type: custom:smart-display-card
+    location: 고양시 덕양구
+    weather: weather.forecast_jib
+    outdoor_temp: sensor.siloe_siloe_temperature
+    outdoor_humidity: sensor.siloe_siloe_humidity
+    indoor_temp: sensor.maihom_eeomoniteo_temperature
+    indoor_humidity: sensor.maihom_eeomoniteo_humidity
+    air:
+      co2: sensor.maihom_eeomoniteo_carbon_dioxide
+      pm10: sensor.maihom_eeomoniteo_pm10
+      pm10_status: sensor.maihom_eeomoniteo_pm10_health_concern
+      pm25: sensor.maihom_eeomoniteo_pm2_5
+      pm25_status: sensor.maihom_eeomoniteo_pm2_5_health_concern
+      pm1: sensor.maihom_eeomoniteo_pm1
+      pm1_status: sensor.maihom_eeomoniteo_pm1_health_concern
+      odor: sensor.maihom_eeomoniteo_odor_sensor
+      caqi: sensor.maihom_eeomoniteo_air_quality
+- title: 스마트홈
+  path: smarthome
+  icon: mdi:lightbulb-group
+  type: panel
+  cards:
+  - type: custom:smart-display-controls
+    living1: switch.geosil_geosildeung_1
+    living2: switch.geosil_geosildeung_2
+    kitchen: switch.geosil_jubangdeung
+    bathroom: switch.hwajangsil_hwajangsildeung
+    bath_fan: switch.hwajangsil_hwajangsil_hwanpunggi
+    kitchen_fan: switch.geosil_hwanpunggi
