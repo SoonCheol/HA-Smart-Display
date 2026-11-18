@@ -1,0 +1,16 @@
+# Independent outdoor feels-like temperature from Open-Meteo Weather API.
+# Merge the rest: list item into existing HA configuration; do not overwrite other rest entries.
+# Uses zone.home coordinates (verify location before activation).
+rest:
+  - resource_template: >-
+      https://api.open-meteo.com/v1/forecast?latitude={{ state_attr('zone.home','latitude') }}&longitude={{ state_attr('zone.home','longitude') }}&current=apparent_temperature&temperature_unit=celsius&timezone=Asia%2FSeoul
+    method: GET
+    timeout: 20
+    scan_interval: 900
+    sensor:
+      - name: Smart Display Apparent Temperature
+        unique_id: smart_display_apparent_temperature
+        device_class: temperature
+        state_class: measurement
+        unit_of_measurement: "°C"
+        value_template: "{{ value_json.current.apparent_temperature if value_json.current is defined and value_json.current.apparent_temperature is defined else 'unknown' }}"
