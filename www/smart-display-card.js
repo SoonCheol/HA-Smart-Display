@@ -215,7 +215,7 @@ class SmartDisplayHomeV5 extends HTMLElement {
     };
     const gust = availableNumber(wa.wind_gust_speed, 1);
     const wind = availableNumber(wa.wind_speed, 1);
-    const windLine = wind === '—' ? '—' : `${wind} ${this._escape(wa.wind_speed_unit || 'm/s')}${gust === '—' ? '' : ' (' + gust + ')'}`;
+    const windLine = wind === '—' ? '—' : `${wind} ${wa.wind_speed_unit || 'm/s'}${gust === '—' ? '' : ' (' + gust + ')'}`;
     const metricRows = [
       metric('♧', '체감온도', availableNumber(wa.apparent_temperature, 1, '°')),
       metric('♢', '습도', availableNumber(wa.humidity, 0, '%')),
@@ -279,7 +279,7 @@ class SmartDisplayHomeV5 extends HTMLElement {
         /* PC weather panel: fits the existing 45% top-grid column (~843 x 433px at 1920 x 1032). */
         .weather { background:linear-gradient(165deg,#07447c,#062e5c 56%,#123b5d); padding:2.7% 3.3% 2.7%; display:flex; flex-direction:column; min-width:0; }
         .weather-place { font-size:calc(25 * var(--sd-unit)); font-weight:700; flex:0 0 auto; white-space:nowrap; }
-        .weather-content { display:grid; grid-template-columns:minmax(0,40%) calc(2 * var(--sd-unit)) minmax(0,1fr); align-items:stretch; min-height:0; flex:1; margin-top:calc(9 * var(--sd-unit)); }
+        .weather-content { display:grid; grid-template-columns:minmax(0,50%) calc(2 * var(--sd-unit)) minmax(0,1fr); align-items:stretch; min-height:0; flex:1; margin-top:calc(9 * var(--sd-unit)); }
         .weather-left { display:flex; flex-direction:column; justify-content:center; min-width:0; padding-right:calc(15 * var(--sd-unit)); }
         .weather-current { display:flex; align-items:center; gap:calc(9 * var(--sd-unit)); flex:1; min-height:0; }
         .weather-icon { font-size:calc(65 * var(--sd-unit)); line-height:1; flex:0 0 auto; }
