@@ -13,6 +13,8 @@ views:
     weather: weather.forecast_jib
     outdoor_temp: sensor.siloe_siloe_temperature
     outdoor_humidity: sensor.siloe_siloe_humidity
+    outdoor_pm10: sensor.smart_display_outdoor_pm10
+    outdoor_pm25: sensor.smart_display_outdoor_pm2_5
     indoor_temp: sensor.maihom_eeomoniteo_temperature
     indoor_humidity: sensor.maihom_eeomoniteo_humidity
     air:
