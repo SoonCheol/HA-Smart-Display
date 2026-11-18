@@ -8,7 +8,7 @@
 | `www/smart-display.yaml` | HA의 `/config/www/smart-display.yaml`. 대시보드 구성 YAML입니다. |
 | `dashboard/lovelace.smart_display.json` | HA의 `/config/.storage/lovelace.smart_display`. 운영 중인 Storage 모드 대시보드 구성입니다. |
 
-운영 대시보드 경로는 `smart-display`입니다. Lovelace 리소스는 `/local/smart-display-card.js?v=8`과 HACS의 `/hacsfiles/kiosk-mode/kiosk-mode.js`를 참조합니다. `www/새 폴더`의 카드 사본은 운영 리소스에 연결되지 않아 제외했습니다. 별도 `mini_display` 통합도 이 대시보드 구성에서 참조하지 않습니다.
+운영 대시보드 경로는 `smart-display`입니다. Lovelace 리소스는 2026-11-18 체감온도 표시 정상화 후 `/local/smart-display-card.js?v=11`과 HACS의 `/hacsfiles/kiosk-mode/kiosk-mode.js`를 참조합니다. `www/새 폴더`의 카드 사본은 운영 리소스에 연결되지 않아 제외했습니다. 별도 `mini_display` 통합도 이 대시보드 구성에서 참조하지 않습니다.
 
 ## 날씨와 실외 미세먼지
 
