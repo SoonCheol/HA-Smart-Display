@@ -207,8 +207,17 @@ class SmartDisplayHomeV5 extends HTMLElement {
       const n = Number(value);
       return n <= limit[0] ? '좋음' : n <= limit[1] ? '보통' : n <= limit[2] ? '나쁨' : '매우나쁨';
     };
+    const uvGrade = value => {
+      const n = Number(value);
+      if (value === null || value === undefined || value === '' || !Number.isFinite(n) || n < 0) return '';
+      return n < 3 ? '낮음' : n < 6 ? '보통' : n < 8 ? '높음' : n < 11 ? '매우높음' : '위험';
+    };
+    const gradeColor = status => ({
+      '낮음': '#8ae5b2', '보통': '#ffd47d', '높음': '#ffa56b',
+      '매우높음': '#ff707e', '위험': '#ff707e'
+    })[status] || this._statusColor(status);
     const metric = (icon, label, value, status = '') =>
-      `<div class="weather-metric"><span class="metric-icon">${icon}</span><span class="metric-label">${this._escape(label)}</span><span class="metric-value">${this._escape(value)}</span>${status ? `<span class="metric-grade" style="color:${this._statusColor(status)}">${this._escape(status)}</span>` : ''}</div>`;
+      `<div class="weather-metric"><span class="metric-icon">${icon}</span><span class="metric-label">${this._escape(label)}${status && value !== '—' ? ` <span class="metric-grade" style="color:${gradeColor(status)}">${this._escape(status)}</span>` : ''}</span><span class="metric-value">${this._escape(value)}</span></div>`;
     const availableNumber = (n, decimals = 1, unit = '') => {
       const value = this._number(n, decimals);
       return value === '—' ? value : value + unit;
@@ -223,7 +232,7 @@ class SmartDisplayHomeV5 extends HTMLElement {
       ...(rain === '—' ? [] : [metric('♧', '강수확률', rain + '%')]),
       metric('⠿', '미세먼지 PM10', outdoorPm10 === '—' ? '—' : outdoorPm10 + ' ㎍/㎥', pmGrade(outdoorPm10, [30, 80, 150])),
       metric('⠿', '초미세먼지 PM2.5', outdoorPm25 === '—' ? '—' : outdoorPm25 + ' ㎍/㎥', pmGrade(outdoorPm25, [15, 35, 75])),
-      metric('☼', '자외선 지수', availableNumber(wa.uv_index, 0))
+      metric('☼', '자외선 지수', availableNumber(wa.uv_index, 0), uvGrade(wa.uv_index))
     ].join('');
     const highLow = (hi,lo) => `<span class="high">${hi}°</span><span class="slash"> / </span><span class="low">${lo}°</span>`;
     const slots = Array.from({length:7}, (_, i) => {
@@ -290,12 +299,12 @@ class SmartDisplayHomeV5 extends HTMLElement {
         .weather-highlow b { font-size:calc(21 * var(--sd-unit)); }
         .weather-divider { width:calc(2 * var(--sd-unit)); background:#779ab6; opacity:.85; margin:calc(5 * var(--sd-unit)) 0; }
         .weather-metrics { display:flex; flex-direction:column; justify-content:space-around; min-height:0; padding-left:calc(17 * var(--sd-unit)); }
-        .weather-metric { display:grid; grid-template-columns:calc(29 * var(--sd-unit)) minmax(0,1fr) auto auto; align-items:center; gap:calc(5 * var(--sd-unit)); min-height:0; flex:1; border-bottom:1px solid rgba(151,188,215,.48); font-size:calc(18 * var(--sd-unit)); }
+        .weather-metric { display:grid; grid-template-columns:calc(29 * var(--sd-unit)) minmax(0,1fr) auto; align-items:center; gap:calc(5 * var(--sd-unit)); min-height:0; flex:1; border-bottom:1px solid rgba(151,188,215,.48); font-size:calc(18 * var(--sd-unit)); }
         .weather-metric:last-child { border-bottom:0; }
         .metric-icon { color:#75d9ef; font-size:calc(23 * var(--sd-unit)); text-align:center; }
-        .metric-label { min-width:0; white-space:nowrap; letter-spacing:calc(.2 * var(--sd-unit)); }
+        .metric-label { min-width:0; display:flex; align-items:center; gap:calc(5 * var(--sd-unit)); white-space:nowrap; letter-spacing:calc(.2 * var(--sd-unit)); }
         .metric-value { justify-self:end; text-align:right; font-size:calc(19 * var(--sd-unit)); font-weight:730; white-space:nowrap; font-variant-numeric:tabular-nums; }
-        .metric-grade { font-size:calc(14 * var(--sd-unit)); padding:calc(2 * var(--sd-unit)) calc(5 * var(--sd-unit)); border:1px solid currentColor; border-radius:calc(12 * var(--sd-unit)); white-space:nowrap; }
+        .metric-grade { display:inline-block; flex-shrink:0; font-size:calc(12 * var(--sd-unit)); line-height:1.2; padding:calc(2 * var(--sd-unit)) calc(6 * var(--sd-unit)); border:1px solid currentColor; border-radius:calc(12 * var(--sd-unit)); white-space:nowrap; }
         .sensors { display:grid; grid-template-rows:1fr 1fr; gap:5%; min-width:0; }
         .sensor { padding:6% 7%; display:flex; flex-direction:column; justify-content:center; }
         .sensor-title { font-size:calc(25 * var(--sd-unit)); font-weight:700; margin-bottom:calc(24 * var(--sd-unit)); }
