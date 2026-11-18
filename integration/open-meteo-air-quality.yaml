@@ -1,0 +1,23 @@
+# Smart Display outdoor air quality: Open-Meteo modeled current concentrations.
+# Copy/merge this 'rest:' entry into the existing Home Assistant configuration.
+# Do not replace an existing rest: section; use its list or include mechanism.
+# Before enabling, verify zone.home coordinates point to the intended outdoor area.
+rest:
+  - resource_template: >-
+      https://air-quality-api.open-meteo.com/v1/air-quality?latitude={{ state_attr('zone.home','latitude') }}&longitude={{ state_attr('zone.home','longitude') }}&current=pm10,pm2_5&timezone=Asia%2FSeoul
+    method: GET
+    timeout: 20
+    scan_interval: 1800
+    sensor:
+      - name: Smart Display Outdoor PM10
+        unique_id: smart_display_outdoor_pm10
+        device_class: pm10
+        state_class: measurement
+        unit_of_measurement: "µg/m³"
+        value_template: "{{ value_json.current.pm10 if value_json.current is defined and value_json.current.pm10 is defined else 'unknown' }}"
+      - name: Smart Display Outdoor PM2.5
+        unique_id: smart_display_outdoor_pm25
+        device_class: pm25
+        state_class: measurement
+        unit_of_measurement: "µg/m³"
+        value_template: "{{ value_json.current.pm2_5 if value_json.current is defined and value_json.current.pm2_5 is defined else 'unknown' }}"
