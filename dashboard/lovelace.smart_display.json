@@ -34,7 +34,8 @@
                 "caqi": "sensor.maihom_eeomoniteo_air_quality"
               },
               "outdoor_pm10": "sensor.smart_display_outdoor_pm10",
-              "outdoor_pm25": "sensor.smart_display_outdoor_pm2_5"
+              "outdoor_pm25": "sensor.smart_display_outdoor_pm2_5",
+              "apparent_temperature": "sensor.smart_display_apparent_temperature"
             }
           ]
         },
