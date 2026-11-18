@@ -199,6 +199,32 @@ class SmartDisplayHomeV5 extends HTMLElement {
     const max = this._number(today.temperature);
     const min = this._number(today.templow);
     const rain = this._number(today.precipitation_probability);
+    // Outdoor particulate readings are intentionally separate from indoor air sensors.
+    const outdoorPm10 = c.outdoor_pm10 ? this._value(c.outdoor_pm10, 0) : '—';
+    const outdoorPm25 = c.outdoor_pm25 ? this._value(c.outdoor_pm25, 0) : '—';
+    const pmGrade = (value, limit) => {
+      if (value === '—') return '';
+      const n = Number(value);
+      return n <= limit[0] ? '좋음' : n <= limit[1] ? '보통' : n <= limit[2] ? '나쁨' : '매우나쁨';
+    };
+    const metric = (icon, label, value, status = '') =>
+      `<div class="weather-metric"><span class="metric-icon">${icon}</span><span class="metric-label">${this._escape(label)}</span><span class="metric-value">${this._escape(value)}</span>${status ? `<span class="metric-grade" style="color:${this._statusColor(status)}">${this._escape(status)}</span>` : ''}</div>`;
+    const availableNumber = (n, decimals = 1, unit = '') => {
+      const value = this._number(n, decimals);
+      return value === '—' ? value : value + unit;
+    };
+    const gust = availableNumber(wa.wind_gust_speed, 1);
+    const wind = availableNumber(wa.wind_speed, 1);
+    const windLine = wind === '—' ? '—' : `${wind} ${this._escape(wa.wind_speed_unit || 'm/s')}${gust === '—' ? '' : ' (' + gust + ')'}`;
+    const metricRows = [
+      metric('♧', '체감온도', availableNumber(wa.apparent_temperature, 1, '°')),
+      metric('♢', '습도', availableNumber(wa.humidity, 0, '%')),
+      metric('≋', '풍속 (돌풍)', windLine),
+      ...(rain === '—' ? [] : [metric('♧', '강수확률', rain + '%')]),
+      metric('⠿', '미세먼지 PM10', outdoorPm10 === '—' ? '—' : outdoorPm10 + ' ㎍/㎥', pmGrade(outdoorPm10, [30, 80, 150])),
+      metric('⠿', '초미세먼지 PM2.5', outdoorPm25 === '—' ? '—' : outdoorPm25 + ' ㎍/㎥', pmGrade(outdoorPm25, [15, 35, 75])),
+      metric('☼', '자외선 지수', availableNumber(wa.uv_index, 0))
+    ].join('');
     const highLow = (hi,lo) => `<span class="high">${hi}°</span><span class="slash"> / </span><span class="low">${lo}°</span>`;
     const slots = Array.from({length:7}, (_, i) => {
       const day = this._forecast[i];
@@ -250,15 +276,26 @@ class SmartDisplayHomeV5 extends HTMLElement {
         .air-value {font-size:calc(36 * var(--sd-unit)); font-weight:780; white-space:nowrap; letter-spacing:calc(-1.5 * var(--sd-unit));}
         .air-value small {font-size:calc(12 * var(--sd-unit)); color:#abc8db; font-weight:500; letter-spacing:0; margin-left:calc(3 * var(--sd-unit));}
         .air-status {text-align:right; flex-shrink:0; font-size:calc(19 * var(--sd-unit)); font-weight:750; white-space:nowrap; letter-spacing:calc(-.5 * var(--sd-unit));}
-        .weather { background:linear-gradient(165deg,#07447c,#062e5c 56%,#123b5d); padding:5% 5% 3%; display:flex; flex-direction:column; }
-        .weather-place { font-size:calc(29 * var(--sd-unit)); font-weight:700; }
-        .weather-center { display:flex; align-items:center; justify-content:space-between; flex:1; gap:2%; }
-        .weather-icon { font-size:calc(103 * var(--sd-unit)); line-height:1; width:28%; text-align:center; }
-        .weather-primary { flex:1; }
-        .weather-temp { font-size:calc(86 * var(--sd-unit)); letter-spacing:calc(-4 * var(--sd-unit)); font-weight:760; white-space:nowrap; }
-        .weather-cond { font-size:calc(29 * var(--sd-unit)); color:#d8ecfa; }
-        .weather-extra { display:flex; flex-direction:column; gap:calc(18 * var(--sd-unit)); padding-left:3%; border-left:calc(2 * var(--sd-unit)) solid #5b7f9d; font-size:calc(25 * var(--sd-unit)); white-space:nowrap; }
-        .weather-extra .low { color:#7ed1ff; } .weather-extra .high { color:#ffb0a4; }
+        /* PC weather panel: fits the existing 45% top-grid column (~843 x 433px at 1920 x 1032). */
+        .weather { background:linear-gradient(165deg,#07447c,#062e5c 56%,#123b5d); padding:2.7% 3.3% 2.7%; display:flex; flex-direction:column; min-width:0; }
+        .weather-place { font-size:calc(25 * var(--sd-unit)); font-weight:700; flex:0 0 auto; white-space:nowrap; }
+        .weather-content { display:grid; grid-template-columns:minmax(0,40%) calc(2 * var(--sd-unit)) minmax(0,1fr); align-items:stretch; min-height:0; flex:1; margin-top:calc(9 * var(--sd-unit)); }
+        .weather-left { display:flex; flex-direction:column; justify-content:center; min-width:0; padding-right:calc(15 * var(--sd-unit)); }
+        .weather-current { display:flex; align-items:center; gap:calc(9 * var(--sd-unit)); flex:1; min-height:0; }
+        .weather-icon { font-size:calc(65 * var(--sd-unit)); line-height:1; flex:0 0 auto; }
+        .weather-primary { min-width:0; }
+        .weather-temp { font-size:calc(62 * var(--sd-unit)); letter-spacing:calc(-3 * var(--sd-unit)); font-weight:760; white-space:nowrap; line-height:1.08; }
+        .weather-cond { font-size:calc(22 * var(--sd-unit)); color:#d8ecfa; white-space:nowrap; margin-top:calc(7 * var(--sd-unit)); }
+        .weather-highlow { border-top:calc(1 * var(--sd-unit)) solid #6385a4; border-bottom:calc(1 * var(--sd-unit)) solid #6385a4; padding:calc(13 * var(--sd-unit)) 0; display:flex; align-items:center; justify-content:space-between; gap:calc(4 * var(--sd-unit)); font-size:calc(19 * var(--sd-unit)); white-space:nowrap; }
+        .weather-highlow b { font-size:calc(21 * var(--sd-unit)); }
+        .weather-divider { width:calc(2 * var(--sd-unit)); background:#779ab6; opacity:.85; margin:calc(5 * var(--sd-unit)) 0; }
+        .weather-metrics { display:flex; flex-direction:column; justify-content:space-around; min-height:0; padding-left:calc(17 * var(--sd-unit)); }
+        .weather-metric { display:grid; grid-template-columns:calc(29 * var(--sd-unit)) minmax(0,1fr) auto auto; align-items:center; gap:calc(5 * var(--sd-unit)); min-height:0; flex:1; border-bottom:1px solid rgba(151,188,215,.48); font-size:calc(18 * var(--sd-unit)); }
+        .weather-metric:last-child { border-bottom:0; }
+        .metric-icon { color:#75d9ef; font-size:calc(23 * var(--sd-unit)); text-align:center; }
+        .metric-label { min-width:0; white-space:nowrap; letter-spacing:calc(.2 * var(--sd-unit)); }
+        .metric-value { justify-self:end; text-align:right; font-size:calc(19 * var(--sd-unit)); font-weight:730; white-space:nowrap; font-variant-numeric:tabular-nums; }
+        .metric-grade { font-size:calc(14 * var(--sd-unit)); padding:calc(2 * var(--sd-unit)) calc(5 * var(--sd-unit)); border:1px solid currentColor; border-radius:calc(12 * var(--sd-unit)); white-space:nowrap; }
         .sensors { display:grid; grid-template-rows:1fr 1fr; gap:5%; min-width:0; }
         .sensor { padding:6% 7%; display:flex; flex-direction:column; justify-content:center; }
         .sensor-title { font-size:calc(25 * var(--sd-unit)); font-weight:700; margin-bottom:calc(24 * var(--sd-unit)); }
@@ -280,11 +317,17 @@ class SmartDisplayHomeV5 extends HTMLElement {
         </div>
         <div class="top">
           <div class="air card"><div class="air-head"><span>실내 공기질</span><span class="caqi-head">CAQI ${this._escape(airQuality)}</span></div><div class="air-grid">${airMarkup}</div></div>
-          <div class="weather card"><div class="weather-place">◉ ${this._escape(c.location)}</div><div class="weather-center">
-            <div class="weather-icon" role="img">${this._icon(condition)}</div>
-            <div class="weather-primary"><div class="weather-temp">${current}°</div><div class="weather-cond">${this._escape(this._condition(condition))}</div></div>
-            <div class="weather-extra"><div><span class="high">♨</span> 최고 <b>${max}°</b></div><div><span class="low">♧</span> 최저 <b>${min}°</b></div><div>♢ 강수확률 <b>${rain === '—' ? '—' : rain+'%'}</b></div></div>
-          </div></div>
+          <div class="weather card">
+            <div class="weather-place">◉ ${this._escape(c.location)}</div>
+            <div class="weather-content">
+              <div class="weather-left">
+                <div class="weather-current"><div class="weather-icon" role="img">${this._icon(condition)}</div><div class="weather-primary"><div class="weather-temp">${current}°</div><div class="weather-cond">${this._escape(this._condition(condition))}</div></div></div>
+                <div class="weather-highlow"><span>♧ 최고 / 최저</span><b>${max}° <span class="slash">/</span> <span class="low">${min}°</span></b></div>
+              </div>
+              <div class="weather-divider"></div>
+              <div class="weather-metrics">${metricRows}</div>
+            </div>
+          </div>
           <div class="sensors">
             <div class="card sensor"><div class="sensor-title">🌳 실외</div><div class="sensor-data"><span class="temperature">🌡 ${this._value(c.outdoor_temp)}°C</span><span class="humidity">💧 ${this._value(c.outdoor_humidity,0)}%</span></div></div>
             <div class="card sensor"><div class="sensor-title">⌂ 실내</div><div class="sensor-data"><span class="temperature">🌡 ${this._value(c.indoor_temp)}°C</span><span class="humidity">💧 ${this._value(c.indoor_humidity,0)}%</span></div></div>
