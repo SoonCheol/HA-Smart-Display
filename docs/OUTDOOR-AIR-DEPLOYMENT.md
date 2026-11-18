@@ -20,3 +20,13 @@
 
 주의: Open-Meteo Air Quality 값은 모델 기반 대기질 데이터로 공공 측정소 실측값과 다를 수 있다.
 기존 Met.no 날씨 및 SmartThings 실내 센서는 유지한다.
+
+## 체감온도 추가 배포
+
+- `integration/open-meteo-apparent-temperature.yaml`에 정의된 별도의 `rest:` 항목을 운영 Home Assistant의 기존 `rest:` 목록에 병합한다. 기존 Open-Meteo PM 센서나 기타 REST 센서를 덮어쓰지 않는다.
+- `zone.home` 좌표 확인 후 설정 유효성 검사, 센서 실데이터 수신 확인(`sensor.smart_display_apparent_temperature`, 단위 °C).
+- Storage 모드 홈 카드에 `apparent_temperature: sensor.smart_display_apparent_temperature` 매핑을 추가한다. `.storage` 파일 직접 덮어쓰기 금지.
+- JS 최신 main 배포 후 캐시 버전을 현재 운영 버전보다 증가시켜 갱신한다.
+- Open-Meteo 센서가 유효할 때 이를 우선 사용하고, 값이 없을 때는 기존 Met.no `apparent_temperature`를 사용한다.
+- 미세먼지 연결도 아직 미적용이라면 위 단계와 병합하여 실제 PM10/PM2.5 수치까지 검증한다.
+- 기상 서비스 두 곳 모두 값이 없거나 네트워크 장애면 체감온도 `—`가 남을 수 있다. 이 경우 서버 센서 상태/로그를 확인한다.
