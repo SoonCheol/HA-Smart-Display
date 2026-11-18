@@ -225,8 +225,10 @@ class SmartDisplayHomeV5 extends HTMLElement {
     const gust = availableNumber(wa.wind_gust_speed, 1);
     const wind = availableNumber(wa.wind_speed, 1);
     const windLine = wind === '—' ? '—' : `${wind} ${wa.wind_speed_unit || 'm/s'}${gust === '—' ? '' : ' (' + gust + ')'}`;
+    const feelsLikeSensor = c.apparent_temperature ? this._value(c.apparent_temperature, 1) : '—';
+    const feelsLikeValue = feelsLikeSensor !== '—' ? feelsLikeSensor + '°' : availableNumber(wa.apparent_temperature, 1, '°');
     const metricRows = [
-      metric('♧', '체감온도', availableNumber(wa.apparent_temperature, 1, '°')),
+      metric('♧', '체감온도', feelsLikeValue),
       metric('♢', '습도', availableNumber(wa.humidity, 0, '%')),
       metric('≋', '풍속 (돌풍)', windLine),
       ...(rain === '—' ? [] : [metric('♧', '강수확률', rain + '%')]),
