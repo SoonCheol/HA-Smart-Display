@@ -11,6 +11,7 @@ views:
   - type: custom:smart-display-card
     location: 고양시 덕양구
     weather: weather.forecast_jib
+    apparent_temperature: sensor.smart_display_apparent_temperature
     outdoor_temp: sensor.siloe_siloe_temperature
     outdoor_humidity: sensor.siloe_siloe_humidity
     outdoor_pm10: sensor.smart_display_outdoor_pm10
